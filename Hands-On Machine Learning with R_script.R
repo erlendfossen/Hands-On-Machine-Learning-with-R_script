@@ -78,6 +78,43 @@ test_strat <- testing(split_strat)
 #### Up-sampling: used when low sample sizes. Creates new cases of the rarer samples, using repetition/bootstrapping
 
 ## 2.3 Creating models in R ----
+### Standard Y~X formula method (Y~x1+x2+x1:x2 etc)
+### OR: XY interface (x= c(...,...), y=...)
+### OR: variable name specification (x=c("...","...",...), y="...") #used in h2o package
+
+### Meta engines (e.g. caret): allows a more consistent way of modelling, but often less flexible than using direct engines/packages (e.g. lm() vs glm(fam="gaussian") give same model, but different specification)
+
+## 2.4 Resampling methods ----
+### Training data should be further split into a training set and a validation/holdout set (separate from the untouched test set) - that way you can validate the models prior to finding the final model
+### Resampling (e.g. k-fold cross validation / bootstrapping) of the training data allows us to repeatedly fit a model of interest to parts of the training data and test its performance on other parts
+
+### k-fold cross validation (CV)
+#### Make k splits, train on k-1 and test on the last one. Then repeat this k times, each time testing/validating the data on a different set
+#### Can often be performed directly in ML functions (e.g. h2o.glm), or externally (but then you need a process to apply the ML model to each resample)
+#### example of external:
+rsample::vfold_cv(ames, v = 10)
+
+### Bootstrapping
+#### train model using selected data in the bootstrap and then test on the out-of-bag (OOB) samples (i.e. the ones not included in the bootstrap sample). Repeat several times
+#### example external
+bootstraps(ames, times = 10)
+#### Often internally build in ML algorithms (e.g. in random forest)
+
+## 2.5 Bias variance trade-off ----
+### prediction error comes from either bias or due to variance, often a tradeoff
+### Hyperparameter tuning
+#### k-nearest neightbor model: k is the hyperparameter, determines the predicted value based on the k nearest observations in the training data
+#### Manually change hyperparameters and test with f.ex. k-fold CV OR use a grid search to do it for you
+#### Grid search helps determining the optimal parameter, where neither model variance or model bias is too large
+
+
+
+
+
+
+
+
+
 
 
 
