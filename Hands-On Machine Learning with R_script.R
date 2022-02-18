@@ -107,6 +107,57 @@ bootstraps(ames, times = 10)
 #### Manually change hyperparameters and test with f.ex. k-fold CV OR use a grid search to do it for you
 #### Grid search helps determining the optimal parameter, where neither model variance or model bias is too large
 
+## 2.6 Model evaluation ----
+### Regression models for loss functions
+#### Most common: MSE (mean squared error, more weight on large errors), RMSE (root of MSE, error in same unit as response variable)
+#### Other useful: deviance (often more useful if on-gaussian distribution of response), RMSLE (similar to RMSE, but log transformed first. Good when large range in response values)
+
+### Classification models: 
+#### Main types: misclassification (overal error, how many (in percentage) cases very wrongly classified), mean per class error (similar to misclass, but better when unbalanced classes)
+##### MSE (takes predicted probability of the correct class into account, so higher error if the correct class was predicted as less likely)
+##### cross-entropy/deviance (similar to MSE, but punishes high confidence in wrong answer even more), gini index (for tree-based methods)
+
+#### Confusion matrix: matrix with predicted vs actual category. 
+##### If binary classes: True positive (predicted correct), false positive (predicted x to happen, but it didnt), false negative (did not predict x, but it happened), true negative
+###### Accuracy (how often correct, opposite of misclassification); precision (how many (in %) true pos compared to false pos)
+###### Sensitivity (true pos compared to false neg, how many of the events that occured did we predict); specificity (true neg compared to false pos)
+###### AUC: area under the curve. Want the line to be in the upper left-hand corner
+
+## 2.7 Simple test ----
+
+### Stratified sampling with the rsample package
+set.seed(123)
+split <- initial_split(ames, prop = 0.7,
+                       strata = "Sale_Price")
+ames_train <- training(split)
+ames_test <- testing(split)
+
+### Specify resampling strategy, 10-fold, repeated 5 times
+cv <- trainControl(
+  method = "repeatedcv",
+  number = 10,
+  repeats = 5
+)
+### Create grid of hyperparameter values
+hyper_grid <- expand.grid(k = seq(2, 25, by = 1)) # k from 2 to 25
+### Tune a k-nearest neighbor (knn) model using grid search (uses caret package)
+# knn_fit <- train( 
+  Sale_Price ~ ., #model, ~. means all predictor variables
+  data = ames_train,
+  method = "knn",
+  trControl = cv,
+  tuneGrid = hyper_grid,
+  metric = "RMSE" #loss function
+) #OBS: takes some time to run! Remove # from knn_fit to run
+
+knn_fit # gives the CV result. model with k=6 is best here
+ggplot(knn_fit) # plot showing that 6 is best, but 7 is also very good here
+
+###  We have found our optimal knn model for the dataset, but it doesnt mean it is the best possible model. 
+### We have also not considered potential feature and target engineering options
+
+# 3 Feature and Target engineering ----
+
 
 
 
